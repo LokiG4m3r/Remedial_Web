@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #0f0f0f;
+      color: white;
+    }
+    button {
+      display: block;
+      margin: 10px 0;
+      padding: 10px 20px;
+      background: #3a3a3a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎛️ Panel del Presentador</h1>
+
+  <button onclick="window.opener.mostrarSiguienteOpcion()">
+    Mostrar siguiente opción
+  </button>
+
+  <button onclick="window.opener.usarComodinCambio()">
+    Usar comodín de cambio
+  </button>
+
+  <button onclick="window.opener.mostrarPregunta(preguntaIndex + 1)">
+    Pasar a siguiente pregunta
+  </button>
+
+  <button onclick="window.opener.reiniciarComodinCambio()">
+    Reiniciar comodín de cambio
+  </button>
+
+  <button onclick="window.opener.location.reload()">
+    🔁 Recargar juego
+  </button>
+
+</body>
+</html>

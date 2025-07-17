@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concursillo Millonario</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  position: relative;
+}
+
+    /* Contenedor de bolas indicador */
+    #contenedorIndicador {
+      position: absolute;
+      bottom: 280px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      width: 900px;
+      justify-content: center;
+      user-select: none;
+    }
+    /* Cada bola */
+    .bolaIndicador {
+      width: 38px;
+      height: 38px;
+      transform: translateY(-150%);
+      border-radius: 50%;
+      border: 2px solid gold;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background-color: #333; /* gris oscuro para no respondidas */
+      box-shadow: 0 0 5px #000000aa;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .bolaIndicador.correcta {
+      background-color: #28a745; /* verde */
+      border-color: #28a745;
+      box-shadow: 0 0 10px #28a745;
+      color: white;
+    }
+    .bolaIndicador.incorrecta {
+      background-color: #dc3545; /* rojo */
+      border-color: #dc3545;
+      box-shadow: 0 0 10px #dc3545;
+      color: white;
+    }
+    .bolaIndicador.actual {
+      border-color: gold;
+      border-width: 4px;
+      box-shadow: 0 0 15px gold;
+    }
+    .bolaIndicador:hover {
+      filter: brightness(1.2);
+    }
+    .pregunta {
+      position: absolute;
+      bottom: 220px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(to bottom, #002966, #000c3d);
+      color: white;
+      padding: 20px 40px;
+      font-size: 28px;
+      font-weight: bold;
+      border: 3px solid gold;
+      border-radius: 12px;
+      box-shadow: 0 0 15px gold;
+      max-width: 80%;
+      text-align: center;
+      user-select: none;
+    }
+    .opcion {
+      position: absolute;
+      width: 380px;
+      height: 70px;
+      background: #001b3a;
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+      }
+    .opcion:hover {
+      background-color: #004080;
+      transform: scale(1.05);
+    }
+    .opcion.correcta {
+      background-color: #28a745 !important;
+      color: white;
+      border-color: #28a745;
+    }
+    .opcion.incorrecta {
+      background-color: #dc3545 !important;
+      color: white;
+      border-color: #dc3545;
+    }
+    .opcion.seleccionada {
+      border: 3px solid gold;
+      background-color: #003366;
+    }
+    #op1 {
+  bottom: 140px;
+  left: 25%;
+  transform: translateX(-50%);
+}
+    #op2 {
+  bottom: 60px;
+  left: 25%;
+  transform: translateX(-50%);
+}
+#op3 {
+  bottom: 140px;
+  left: 75%;
+  transform: translateX(-50%);
+}
+#op4 {
+  bottom: 60px;
+  left: 75%;
+  transform: translateX(-50%);
+}
+    #btnSiguiente {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 40px;
+      font-size: 20px;
+      border: 2px solid gold;
+      border-radius: 12px;
+      background-color: #001f4d;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #btnSiguiente:disabled {
+      background-color: #333;
+      color: #aaa;
+      border-color: #555;
+      cursor: default;
+    }
+    #btnSiguiente:hover:enabled {
+      background-color: #003366;
+    }
+    #btnComprobar {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 40px;
+      font-size: 20px;
+      border: 2px solid gold;
+      border-radius: 12px;
+      background-color: #002244;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #btnComprobar:disabled {
+      background-color: #333;
+      color: #aaa;
+      border-color: #555;
+      cursor: default;
+    }
+    #btnComprobar:hover:enabled {
+      background-color: #003366;
+    }
+    /* 🎵 Control de volumen */
+    .volumen-control {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid gold;
+    }
+    .volumen-control input[type=range] {
+      width: 100px;
+    }
+    /* Texto resultado flotante */
+    #resultadoTexto {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 10px black;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      z-index: 100;
+    }
+    #resultadoTexto.mostrar {
+      opacity: 1;
+      transform: translate(-50%, -60%);
+    }
+    #resultadoTexto.correcto {
+      color: #28a745;
+      text-shadow: 0 0 20px #28a745;
+    }
+    #resultadoTexto.incorrecto {
+      color: #dc3545;
+      text-shadow: 0 0 20px #dc3545;
+    }
+    /* Imagen resultado */
+    #imagenResultado {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width:600px;
+      max-height:300px;
+      border: 4px solid gold;
+      border-radius: 12px;
+      box-shadow: 0 0 20px gold;
+      display: none;
+      z-index: 200;
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+    
+    
+    #btnReiniciar {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  padding: 6px 10px;
+  font-size: 18px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: gold;
+  border: 2px solid gold;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 999;
+  transition: background-color 0.3s ease;
+}
+#btnReiniciar:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+    
+    
+    
+/* 🎆 Animaciones de fuegos artificiales y brillos */
+.fireworks-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.firework {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff, transparent);
+  animation: explode 1.2s ease-out forwards;
+}
+
+/* Animación para fade-in + slide-up */
+    @keyframes fadeSlideUp {
+  from {
+    opacity: 0.3;           /* menos brusco que 0 */
+    transform: translateX(0)translateY(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(20);
+  }
+}
+.animarEntrada {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* easing más suave */
+}
+
+    
+@keyframes seleccionarOpcion {
+  0% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: none;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: 0 0 10px gold;
+  }
+  100% {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: none;
+  }
+}
+    .opcion.seleccionada {
+  animation: seleccionarOpcion 0.4s ease forwards;
+  border-color: gold;
+}
+ 
+    
+@keyframes explode {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(10);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(12);
+    opacity: 0;
+  }
+}
+
+/* ✨ Brillo central */
+#finalBrillo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 64px;
+  color: gold;
+  text-shadow: 0 0 20px white, 0 0 40px gold, 0 0 60px red;
+  animation: parpadeo 1.5s infinite ease-in-out;
+  z-index: 10000;
+  display: none;
+}
+
+@keyframes parpadeo {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; transform: scale(1.05); }
+}    
+    
+    
+    
+  </style>
+</head>
+
+<body>
+  
+  <button id="btnReiniciar" title="Reiniciar juego">⌚</button>
+  
+  
+  <!-- 🧩 Comodines -->
+<div id="comodines" style="position:absolute; top:10px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 10;">
+  <button id="comodin5050" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">🌓</button>
+  <button id="comodinLlamada" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">☎️</button>
+  <button id="comodinChat" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">📊</button>
+  <button id="comodinCambio" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">👨🏻‍🏫</button>
+
+</div>
+
+  
+<!-- Botones para reiniciar comodines individualmente -->
+<div id="resetComodines" style="position:absolute; top:80px; left: 50%; transform: translateX(-50%); display: none; gap: 65px; z-index: 11;">
+  <button id="reset5050" style="font-size: 12px; padding: 3px 8px;">Reiniciar</button>
+  <button id="resetLlamada" style="font-size: 12px; padding: 3px 8px;">Reiniciar</button>
+  <button id="resetChat" style="font-size: 12px; padding: 3px 8px;">Reiniciar</button>
+  <button id="resetCambio" style="font-size: 12px; padding: 3px 8px;">Reiniciar</button>
+</div>
+  
+
+  <!-- Contenedor de bolas indicador -->
+  <div id="contenedorIndicador"></div>
+
+  <div class="pregunta" id="pregunta" style="display: none;">Cargando pregunta...</div>
+  <div id="op1" class="opcion" style="display: none;">1</div>
+  <div id="op2" class="opcion" style="display: none;">2</div>
+  <div id="op3" class="opcion" style="display: none;">3</div>
+  <div id="op4" class="opcion" style="display: none;">4</div>
+
+  <button id="btnComprobar" disabled style="display: none;">Comprobar respuesta</button>
+  <button id="btnSiguiente">Iniciar</button>
+
+  <!-- 🎵 Control de volumen -->
+  <div class="volumen-control">
+    🎵 Volumen
+    <input id="volumenSlider" type="range" min="0" max="1" step="0.01" value="0" />
+  </div>
+
+  <!-- 🎵 Audios -->
+  <audio id="audioInicio" src="sonidos/inicio.mp3" preload="auto"></audio>
+  <audio id="audioReinicio" src="sonidos/tic_tac.mp3"></audio>
+  <audio id="audioCorrecto" src="sonidos/correcto.mp3"></audio>
+  <audio id="audioIncorrecto" src="sonidos/incorrecto.mp3"></audio>
+  <audio id="audioBgm"></audio>
+
+  <!-- Texto resultado flotante -->
+  <div id="resultadoTexto"></div>
+
+  <!-- Imagen resultado -->
+  <img id="imagenResultado" src=imagen alt="Imagen resultado" />
+
+  <script>
+    
+    window.onload = () => {
+    window.open('panel.html', 'PanelControl', 'width=400,height=600');
+  };
+    
+    
+    const preguntasReserva = [
+  {
+    texto: "¿Cuál es el océano más profundo?",
+    opciones: ["Atlántico", "Índico", "Ártico", "Pacífico"],
+    respuestaCorrecta: 3,
+    imagen: "fotos/tierra.png"
+  },
+  {
+    texto: "¿Qué planeta tiene más lunas?",
+    opciones: ["Marte", "Júpiter", "Saturno", "Neptuno"],
+    respuestaCorrecta: 2
+  }
+];
+
+    const TOTAL_PREGUNTAS = 20;
+    const preguntas = [
+      ///PREGUNTAS
+      //1
+      { 
+        texto: "¿Cuál es el planeta conocido como 'el planeta azul'?", 
+        opciones: ["Marte", "Tierra", "Neptuno", "Venus"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/tierra.png"
+      },
+      //2
+      { 
+        texto: "¿Quién escribió Don Quijote de la Mancha?", 
+        opciones: ["Miguel de Cervantes", "Gabriel García Márquez", "William Shakespeare", "Lope de Vega"], 
+        respuestaCorrecta: 0,
+        imagen: "fotos/cervantes.png"
+      },
+      //3
+      { 
+        texto: "¿En qué país se encuentra la Torre Eiffel?", 
+        opciones: ["Italia", "Francia", "España", "Alemania"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/francia.jpg"
+      },
+      //4 
+      { 
+        texto: "¿Qué instrumento tiene cuerdas y se toca con un arco?", 
+        opciones: ["Flauta", "Piano", "Violín", "Batería"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/violin.png"
+      },
+      //5
+      { 
+        texto: "¿Cuál es el océano que bordea la costa este de América?", 
+        opciones: ["Índico", "Pacífico", "Atlántico", "Ártico"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/atlantico.png"
+      },
+      //6
+      { 
+        texto: "¿Qué gas respiramos para vivir?", 
+        opciones: ["Dióxido de Carbono", "Nitrógeno", "Oxígeno", "Hidrógeno"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/oxigeno.png"
+      },
+      //7 
+      { 
+        texto: "¿En qué continente se encuentra Brasil?", 
+        opciones: ["Europa", "África", "Asia", "América del Sur"], 
+        respuestaCorrecta: 3,
+        imagen: "fotos/americasur.png"
+      },
+      //8
+      { 
+        texto: "¿Qué órgano produce la bilis?", 
+        opciones: ["Estómago", "Hígado", "Riñón", "Vesícula"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/higado.png"
+      },
+      //9
+       { 
+        texto: "¿En qué año terminó la Segunda Guerra Mundial?", 
+        opciones: ["1939", "1945", "1948", "1950"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/1945.png"
+       },
+      //10
+      { 
+        texto: "¿Qué tipo de energía produce el sol?", 
+        opciones: ["Cinética", "Nuclear", "Eólica", "Térmica"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/sol.png"
+      },
+      //11
+      { 
+        texto: "¿En qué videojuego usas pokéballs para capturar criaturas?", 
+        opciones: ["Digimon", "Yu-Gi-Oh", "Pokémon", "Final Fantasy"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/pokemon.gif"
+      },
+      //12
+      { 
+        texto: "¿Qué empresa fabrica los iPhones?", 
+        opciones: ["Microsoft", "Google", "Apple", "Samsung"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/apple.png"
+      },
+      //14
+      { 
+        texto: "¿Qué enfermedad afecta principalmente al sistema inmunológico?", 
+        opciones: ["Hepatitis", "Asma", "VIH/SIDA", "Parkinson"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/vihsida.png"
+      },
+      //15
+      { 
+        texto: "¿Quién canta “Shape of You”?", 
+        opciones: ["Bruno Mars", "Ed Sheeran", "Shawn Mendes", "Justin Bieber"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/sheeran.png"
+      },
+      //16
+      { 
+        texto: "¿Qué personaje es el protagonista en The Witcher?", 
+        opciones: ["Geralt de Rivia", "Ezio Auditore", "Kratos", "Link"], 
+        respuestaCorrecta: 0,
+        imagen: "fotos/geralt.png"
+      },
+      //17
+      { 
+        texto: "¿Quién escribió Así habló Zaratustra?", 
+        opciones: ["Sócrates", "Friedrich Nietzsche", "Descartes", "Hegel"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/friedrich.png"
+      },
+      //18
+      { 
+        texto: "¿Quién dirigió 2001: Odisea del Espacio?", 
+        opciones: ["Steven Spielberg", "Ridley Scott", "Stanley Kubrick", "James Cameron"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/stanly.png"
+      },
+      //19
+      { 
+        texto: "¿Cuál es la unidad de medida del trabajo en el Sistema Internacional?", 
+        opciones: ["Newton", "Pascal", "Joule", "Watt"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/joule.png"
+      },
+      //19 
+      { 
+        texto: "¿Quién escribió El extranjero y La peste?", 
+        opciones: ["Franz Kafka", "Albert Camus", "Jean-Paul Sartre", "Italo Calvino"], 
+        respuestaCorrecta: 1,
+        imagen: "fotos/alber.png"
+      },
+      //20
+      { 
+        texto: "¿Qué faraón egipcio fue descubierto en el Valle de los Reyes en 1922?", 
+        opciones: ["Ramsés II", "Akhenatón", "Tutankamón", "Cleopatra VII"], 
+        respuestaCorrecta: 2,
+        imagen: "fotos/Tutankamon.png"
+      }
+    ];
+    while (preguntas.length < TOTAL_PREGUNTAS) {
+      preguntas.push({
+        texto: `Pregunta extra ${preguntas.length + 1}`,
+        opciones: ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+        respuestaCorrecta: 0,
+        imagen: "imagenes/default.jpg"
+      });
+    }
+
+    const contenedorIndicador = document.getElementById('contenedorIndicador');
+    const preguntaEl = document.getElementById('pregunta');
+    const opcionesEls = [
+      document.getElementById('op1'),
+      document.getElementById('op2'),
+      document.getElementById('op3'),
+      document.getElementById('op4')
+    ];
+    const btnSiguiente = document.getElementById('btnSiguiente');
+    const btnComprobar = document.getElementById('btnComprobar');
+    const audioCorrecto = document.getElementById('audioCorrecto');
+    const audioIncorrecto = document.getElementById('audioIncorrecto');
+    const audioBgm = document.getElementById('audioBgm');
+    const volumenSlider = document.getElementById('volumenSlider');
+    const resultadoTexto = document.getElementById('resultadoTexto');
+    const imagenResultado = document.getElementById('imagenResultado');
+
+    let preguntaActual = null;
+    let preguntaIndex = -1; // Empieza en -1 para que la primera sea 0
+    let seleccionUsuario = null;
+    let respuestaComprobada = false;
+    let resultados = Array(TOTAL_PREGUNTAS).fill(null);
+    let comodin5050Usado = false;
+    let comodinLlamadaUsado = false;
+    let comodinChatUsado = false;
+    let comodinCambioUsado = false;
+    let opcionVisibleIndex = 0;
+
+    const bgmTracks = ['sonidos/bgm_quiz_loop1.mp3', 'sonidos/bgm_quiz_loop2.mp3', 'sonidos/bgm_quiz_loop3.mp3'];
+    let bgmIndex = 0;
+
+    
+    document.getElementById('comodinCambio').addEventListener('click', () => {
+  if (comodinCambioUsado || preguntaIndex >= preguntas.length || preguntasReserva.length === 0) return;
+
+  // Selecciona una nueva pregunta al azar de las reservas
+  const nuevaPregunta = preguntasReserva.splice(
+    Math.floor(Math.random() * preguntasReserva.length), 1
+  )[0];
+
+  // Reemplaza la pregunta actual
+  preguntas[preguntaIndex] = nuevaPregunta;
+  comodinCambioUsado = true;
+
+  // Desactiva el botón
+const btn = document.getElementById('comodinCambio');
+btn.disabled = true;
+btn.style.backgroundColor = "#ff0202";
+
+
+  // Muestra la nueva pregunta
+  mostrarPregunta();
+});
+    
+    
+    function usarComodin5050() {
+  if (comodin5050Usado || !preguntaActual) return;
+
+  comodin5050Usado = true;
+  document.getElementById('comodin5050').disabled = true;
+      
+  const btn = document.getElementById('comodin5050');
+btn.disabled = true;
+btn.style.backgroundColor = "#ff0202"; // cambia color al usarlo
+
+
+  const indicesIncorrectos = opcionesEls
+    .map((_, i) => i)
+    .filter(i => i !== preguntaActual.respuestaCorrecta);
+
+  // Barajar incorrectas y tomar 2
+  const ocultar = indicesIncorrectos.sort(() => 0.5 - Math.random()).slice(0, 2);
+
+  ocultar.forEach(i => {
+    opcionesEls[i].style.visibility = "hidden";
+    opcionesEls[i].style.pointerEvents = "none";
+  });
+}
+    
+    
+    
+    function usarComodinLlamada() {
+  if (comodinLlamadaUsado || !preguntaActual) return;
+
+  comodinLlamadaUsado = true;
+  document.getElementById('comodinLlamada').disabled = true;
+
+  const correcta = preguntaActual.opciones[preguntaActual.respuestaCorrecta];
+      const btn = document.getElementById('comodinLlamada');
+btn.disabled = true;
+btn.style.backgroundColor = "#ff0202";
+
+}
+
+function usarComodinChat() {
+  if (comodinChatUsado || !preguntaActual) return;
+
+  comodinChatUsado = true;
+  document.getElementById('comodinChat').disabled = true;
+  const btn = document.getElementById('comodinChat');
+btn.disabled = true;
+btn.style.backgroundColor = "#ff0202";
+
+
+  const correcta = preguntaActual.opciones[preguntaActual.respuestaCorrecta];
+}
+
+
+    
+    
+    
+    function playBgmTrack(index) {
+      if (index >= bgmTracks.length) index = 0;
+      audioBgm.src = bgmTracks[index];
+      audioBgm.play().catch(() => {});
+      bgmIndex = index;
+    }
+
+    audioBgm.addEventListener('ended', () => {
+      bgmIndex = (bgmIndex + 1) % bgmTracks.length;
+      playBgmTrack(bgmIndex);
+    });
+
+    function crearIndicadores() {
+      contenedorIndicador.innerHTML = '';
+      for(let i = 0; i < TOTAL_PREGUNTAS; i++) {
+        const bola = document.createElement('div');
+        bola.classList.add('bolaIndicador');
+        bola.textContent = i + 1;
+        bola.dataset.index = i;
+        bola.addEventListener('click', () => {
+          preguntaIndex = i;
+          mostrarPregunta();
+          ocultarImagenResultado();
+        });
+        contenedorIndicador.appendChild(bola);
+      }
+    }
+
+    function actualizarIndicadores() {
+      const bolas = contenedorIndicador.children;
+      for(let i = 0; i < bolas.length; i++) {
+        bolas[i].classList.remove('correcta', 'incorrecta', 'actual');
+        if (resultados[i] === true) bolas[i].classList.add('correcta');
+        else if (resultados[i] === false) bolas[i].classList.add('incorrecta');
+        if(i === preguntaIndex) bolas[i].classList.add('actual');
+      }
+    }
+
+    function mostrarPregunta() {
+  if (preguntaIndex < 0 || preguntaIndex >= TOTAL_PREGUNTAS) return;
+
+  ocultarImagenResultado();
+
+  preguntaEl.style.display = '';
+  btnComprobar.style.display = '';
+
+  seleccionUsuario = null;
+  respuestaComprobada = false;
+  btnComprobar.disabled = true;
+  btnSiguiente.disabled = true;
+
+  // Ocultar todas las opciones y limpiar clases
+  opcionesEls.forEach(op => {
+    op.style.display = 'none'; // <-- ocultar todas
+    op.classList.remove('correcta', 'incorrecta', 'seleccionada', 'animarEntrada');
+    op.style.pointerEvents = "none";
+    op.style.visibility = "visible";
+  });
+
+  preguntaEl.classList.remove('animarEntrada');
+
+  preguntaActual = preguntas[preguntaIndex];
+
+  // Mostrar botones de reinicio solo en la pregunta 11
+  const reinicioComodines = document.getElementById('resetComodines');
+  if (preguntaIndex === 10) {
+    reinicioComodines.style.display = 'flex';
+  } else {
+    reinicioComodines.style.display = 'none';
+  }
+
+  preguntaEl.textContent = preguntaActual.texto;
+
+  preguntaActual.opciones.forEach((opcion, i) => {
+    opcionesEls[i].textContent = opcion;
+  });
+
+  // Reiniciar índice de opción visible y mostrar la primera
+  if (resultados[preguntaIndex] !== null) {
+  // Si ya fue respondida, mostrar todas las opciones de una
+  opcionesEls.forEach(op => {
+    op.style.display = '';
+    op.style.pointerEvents = 'none';
+  });
+  opcionVisibleIndex = opcionesEls.length;
+} else {
+  // Si es nueva, mostrar de a una
+  opcionVisibleIndex = 0;
+}
+
+
+  // Si ya fue respondida
+  if (resultados[preguntaIndex] !== null) {
+    respuestaComprobada = true;
+    btnComprobar.disabled = true;
+    btnSiguiente.disabled = false;
+    opcionesEls.forEach((op, i) => {
+      op.style.pointerEvents = "none";
+      if (i === preguntaActual.respuestaCorrecta) op.classList.add('correcta');
+      if (resultados[preguntaIndex] === false && i === seleccionUsuario) op.classList.add('incorrecta');
+    });
+  }
+
+  actualizarIndicadores();
+
+  // Animaciones de entrada
+  void preguntaEl.offsetWidth;
+  preguntaEl.classList.add('animarEntrada');
+  opcionesEls.forEach(op => {
+    void op.offsetWidth;
+    op.classList.add('animarEntrada');
+  });
+
+  setTimeout(() => {
+    preguntaEl.classList.remove('animarEntrada');
+    opcionesEls.forEach(op => op.classList.remove('animarEntrada'));
+  }, 600);
+}
+
+
+
+
+    function manejarClickOpcion(indice) {
+  if (respuestaComprobada) return;
+  if (opcionVisibleIndex < opcionesEls.length) return; // no permitir seleccionar si opciones incompletas
+
+  seleccionUsuario = indice;
+  btnComprobar.disabled = false;
+  opcionesEls.forEach((op, i) => {
+    op.classList.toggle('seleccionada', i === indice);
+  });
+}
+
+
+    function mostrarResultadoVisual(tipo) {
+      resultadoTexto.textContent = tipo === "correcto" ? "¡Correcto!" : "¡Incorrecto!";
+      resultadoTexto.className = `mostrar ${tipo}`;
+      setTimeout(() => {
+        resultadoTexto.classList.remove('mostrar', 'correcto', 'incorrecto');
+      }, 2000);
+    }
+
+    function mostrarImagenResultado() {
+      if (!preguntaActual || !preguntaActual.imagen) return;
+      imagenResultado.src = preguntaActual.imagen;
+      imagenResultado.style.display = 'block';
+    }
+
+    function ocultarImagenResultado() {
+      imagenResultado.style.display = 'none';
+      imagenResultado.src = '';
+    }
+
+    function comprobarRespuesta() {
+  if (seleccionUsuario === null || respuestaComprobada) return;
+  respuestaComprobada = true;
+  btnComprobar.disabled = true;
+  btnSiguiente.disabled = false;
+  opcionesEls.forEach(op => op.style.pointerEvents = "none");
+
+  const esCorrecta = seleccionUsuario === preguntaActual.respuestaCorrecta;
+  resultados[preguntaIndex] = esCorrecta;
+
+  if (esCorrecta) {
+    opcionesEls[seleccionUsuario].classList.add('correcta');
+    audioCorrecto.play();
+    mostrarResultadoVisual("correcto");
+  } else {
+    opcionesEls[seleccionUsuario].classList.add('incorrecta');
+    opcionesEls[preguntaActual.respuestaCorrecta].classList.add('correcta');
+    audioIncorrecto.play();
+    mostrarResultadoVisual("incorrecto");
+  }
+
+  actualizarIndicadores();
+  mostrarImagenResultado();
+
+  // 👇🎉 CELEBRACIÓN AL FINAL DEL JUEGO 👇
+  if (preguntaIndex === TOTAL_PREGUNTAS - 1 && esCorrecta) {
+    lanzarCelebracionFinal();
+  }
+}
+
+    const audioInicio = document.getElementById('audioInicio');
+    audioInicio.volume = 0.2; // volumen entre 0.0 y 1.0, 0.2 es bajo
+let juegoIniciado = false;
+
+btnSiguiente.addEventListener('click', () => {
+  if (!juegoIniciado) {
+    audioInicio.play().catch(e => console.log('Error al reproducir audioInicio:', e));
+    juegoIniciado = true;
+  }
+
+  preguntaIndex++;
+  if (preguntaIndex >= TOTAL_PREGUNTAS) preguntaIndex = 0;
+
+  mostrarPregunta();
+
+  if (btnSiguiente.textContent === "Iniciar") {
+    btnSiguiente.textContent = "Siguiente pregunta";
+  }
+});
+
+
+    opcionesEls.forEach((opEl, i) => {
+      opEl.addEventListener('click', () => manejarClickOpcion(i));
+    });
+
+    btnComprobar.addEventListener('click', comprobarRespuesta);
+    volumenSlider.addEventListener('input', () => {
+      audioBgm.volume = parseFloat(volumenSlider.value);
+    });
+
+    audioBgm.volume = parseFloat(volumenSlider.value);
+    playBgmTrack(bgmIndex);
+    crearIndicadores();
+
+    document.getElementById('comodin5050').addEventListener('click', usarComodin5050);
+document.getElementById('comodinLlamada').addEventListener('click', usarComodinLlamada);
+document.getElementById('comodinChat').addEventListener('click', usarComodinChat);
+
+    
+  const audioReinicio = document.getElementById('audioReinicio');
+audioReinicio.volume = 0.2; // volumen entre 0.0 y 1.0, 0.2 es bajo
+let reinicioActivo = false;
+let volumenOriginal = audioBgm.volume;
+
+document.getElementById('btnReiniciar').addEventListener('click', () => {
+  if (!reinicioActivo) {
+    reinicioActivo = true;
+    volumenOriginal = audioBgm.volume; // Guardar volumen actual
+    audioBgm.volume = 0; // Bajar volumen a 10%
+    audioReinicio.currentTime = 0;
+    audioReinicio.play();
+  } else {
+    reinicioActivo = false;
+    audioReinicio.pause();
+    audioReinicio.currentTime = 0;
+    audioBgm.volume = volumenOriginal; // Restaurar volumen original
+  }
+});
+
+function lanzarCelebracionFinal() {
+  const container = document.getElementById('fireworksContainer');
+  const brillo = document.getElementById('finalBrillo');
+  brillo.style.display = 'block';
+
+  for (let i = 0; i < 30; i++) {
+    const fw = document.createElement('div');
+    fw.className = 'firework';
+    fw.style.top = Math.random() * 100 + '%';
+    fw.style.left = Math.random() * 100 + '%';
+    fw.style.background = `radial-gradient(circle, ${colorAleatorio()}, transparent)`;
+    container.appendChild(fw);
+    setTimeout(() => fw.remove(), 1200);
+  }
+
+  setTimeout(() => {
+    brillo.style.display = 'none';
+  }, 4000);
+}
+
+function colorAleatorio() {
+  const colores = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#ff00ff', '#ffffff', '#ffa500'];
+  return colores[Math.floor(Math.random() * colores.length)];
+}
+
+    
+    function mostrarSiguienteOpcion() {
+  if (opcionVisibleIndex < opcionesEls.length) {
+    opcionesEls[opcionVisibleIndex].style.display = '';  // mostrar opción
+    opcionesEls[opcionVisibleIndex].style.pointerEvents = "auto";  // permitir click en ella
+    opcionVisibleIndex++;
+
+    if (opcionVisibleIndex === opcionesEls.length) {
+      // Ya están todas visibles, habilitar selección y botón comprobar
+      // Se habilita selección (clic en opciones) ya que pointerEvents fue activado
+      // El botón "Comprobar" se habilita solo al seleccionar opción
+    }
+  }
+}
+    
+    
+    document.body.addEventListener('click', (e) => {
+  // Ignorar clicks en botones o áreas interactivas para no interferir
+  if (e.target.closest('button') || e.target.classList.contains('opcion')) return;
+
+  if (!respuestaComprobada && opcionVisibleIndex < opcionesEls.length) {
+    mostrarSiguienteOpcion();
+  }
+});
+
+    
+    
+    // Reiniciar comodín 50:50
+document.getElementById('reset5050').addEventListener('click', () => {
+  comodin5050Usado = false;
+  const btn = document.getElementById('comodin5050');
+  btn.disabled = false;
+  btn.style.backgroundColor = '#444';
+
+  // Mostrar de nuevo opciones ocultas por 50:50
+  opcionesEls.forEach(op => {
+    op.style.visibility = 'visible';
+    op.style.pointerEvents = 'auto';
+  });
+});
+
+// Reiniciar comodín Llamada
+document.getElementById('resetLlamada').addEventListener('click', () => {
+  comodinLlamadaUsado = false;
+  const btn = document.getElementById('comodinLlamada');
+  btn.disabled = false;
+  btn.style.backgroundColor = '#444';
+});
+
+// Reiniciar comodín Chat
+document.getElementById('resetChat').addEventListener('click', () => {
+  comodinChatUsado = false;
+  const btn = document.getElementById('comodinChat');
+  btn.disabled = false;
+  btn.style.backgroundColor = '#444';
+});
+
+
+// Reiniciar comodin Cambio Pregunta
+document.getElementById('resetCambio').addEventListener('click', () => {
+  comodinCambioUsado = false;
+
+  const btn = document.getElementById('comodinCambio');
+  btn.disabled = false;
+  btn.style.backgroundColor = '#444'; // o el color original como "#fff" si lo deseas
+});
+
+    
+    
+    // No mostrar pregunta al inicio para esperar botón "Iniciar"
+  </script>
+  
+<div class="fireworks-container" id="fireworksContainer"></div>
+<div id="finalBrillo">¡Has Completado el Remedial!</div>
+
+</body>
+</html>
