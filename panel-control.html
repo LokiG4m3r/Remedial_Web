@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: gold;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      user-select: none;
+      max-width: 480px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 0;
+    }
+    .seccion {
+      background: #2a2a2a;
+      border: 1px solid #555;
+      border-radius: 8px;
+      padding: 15px;
+    }
+    .seccion h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #f5a623;
+      text-align: center;
+      user-select: none;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background: #444;
+      border: none;
+      border-radius: 6px;
+      color: gold;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
+      margin-bottom: 10px;
+      user-select: none;
+    }
+    button:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+  <h2>Panel de Control del Concurso</h2>
+
+  <div class="seccion" id="seccion-navegacion">
+    <h3>Navegación</h3>
+    <button id="btnSiguiente">Siguiente Pregunta</button>
+    <button id="btnMostrarOpcion">Mostrar Siguiente Opción</button>
+    <button id="btnComprobarRespuesta">Comprobar Respuesta</button>
+  </div>
+
+  <div class="seccion" id="seccion-comodines">
+    <h3>Comodines</h3>
+    <button id="btnComodin5050">Usar Comodín 50:50</button>
+    <button id="btnComodinLlamada">Usar Comodín Llamada</button>
+    <button id="btnComodinChat">Usar Comodín Chat</button>
+    <button id="btnComodinCambio">Usar Comodín Cambio</button>
+  </div>
+
+  <div class="seccion" id="seccion-reinicio">
+    <h3>Reiniciar</h3>
+    <button onclick="enviarReinicio('reiniciarComodin5050')">Reiniciar 50:50</button>
+    <button onclick="enviarReinicio('reiniciarComodinLlamada')">Reiniciar Llamada</button>
+    <button onclick="enviarReinicio('reiniciarComodinChat')">Reiniciar Chat</button>
+    <button onclick="enviarReinicio('reiniciarComodinCambio')">Reiniciar Cambio Pregunta</button>
+    <button id="btnReiniciar">Reiniciar Juego</button>
+  </div>
+  
+  <div class="seccion" id="seccion-otros">
+    <h3>Otros</h3>
+    <button id="btnSonido">Reproducir Sonido</button>
+    <label for="volumenJuego">Volumen del Juego</label>
+    <input type="range" id="volumenJuego" min="0" max="1" step="0.01" value="0">
+  </div>
+
+  <audio id="audioSonido" src="sonidos/tic_tac.mp3" preload="auto"></audio>
+  
+  <script>
+    // Función para enviar el mensaje a la ventana principal
+    function enviarMensaje(action) {
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({ action }, window.location.origin);
+      } else {
+        alert('La ventana principal no está disponible.');
+      }
+    }
+
+    function enviarReinicio(tipo) {
+      // Asumiendo que el juego está embebido en un iframe con id="game"
+      const gameWindow = window.opener || window.parent; // por si es ventana emergente o iframe
+      if (gameWindow) {
+        gameWindow.postMessage({ tipo }, '*');
+      } else {
+        alert('No se pudo enviar el mensaje al juego');
+      }
+    }
+    
+    function enviarMensaje(action, data = null) {
+  if (window.opener && !window.opener.closed) {
+    window.opener.postMessage({ action, data }, window.location.origin);
+  } else {
+    alert('La ventana principal no está disponible.');
+  }
+}
+    
+
+    document.getElementById('btnSiguiente').onclick = () => enviarMensaje('siguientePregunta');
+    document.getElementById('btnComprobarRespuesta').onclick = () => enviarMensaje('comprobarRespuesta');
+    document.getElementById('btnComodin5050').onclick = () => enviarMensaje('usarComodin5050');
+    document.getElementById('btnComodinLlamada').onclick = () => enviarMensaje('usarComodinLlamada');
+    document.getElementById('btnComodinChat').onclick = () => enviarMensaje('usarComodinChat');
+    document.getElementById('btnComodinCambio').onclick = () => enviarMensaje('usarComodinCambio');
+    document.getElementById('btnMostrarOpcion').onclick = () => enviarMensaje('mostrarSiguienteOpcion');
+    document.getElementById('btnReiniciar').onclick = () => {
+      if (confirm('¿Seguro que quieres reiniciar el juego?')) {
+        enviarMensaje('reiniciarJuego');
+      }
+    };
+    const audio = document.getElementById('audioSonido');
+  const btnSonido = document.getElementById('btnSonido');
+
+    audio.volume = 0.2
+    audio.loop = true
+    btnSonido.onclick = () => {
+    if (!audio.paused && !audio.ended) {
+      // Si ya está sonando, lo pausamos y lo reiniciamos
+      audio.pause();
+      audio.currentTime = 0;
+      
+    } else {
+      // Si está pausado, lo reproducimos desde el principio
+      audio.play().catch(e => console.log('Error al reproducir audio:', e));
+    }
+  };
+  document.getElementById('volumenJuego').addEventListener('input', (e) => {
+  const nuevoVolumen = parseFloat(e.target.value);
+  enviarMensaje('ajustarVolumen', nuevoVolumen);
+});
+ 
+  
+  </script>
+</body>
+</html>

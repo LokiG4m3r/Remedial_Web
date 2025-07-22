@@ -7,15 +7,20 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-  background: transparent;
+  background-image: url('./remedial_background.png');
+  background-size: cover;       /* Que cubra toda la pantalla */
+  background-position: center;  /* Centrado */
+  background-repeat: no-repeat; /* No repetir la imagen */
+  background-attachment: fixed; /* Para que no se mueva al hacer scroll */
   width: 1920px;
   height: 1080px;
   overflow: hidden;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: white;
-  position: relative;
+  position: center;
 }
 
+    
     /* Contenedor de bolas indicador */
     #contenedorIndicador {
       position: absolute;
@@ -152,7 +157,7 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    #btnSiguiente:disabled {
+    /*#btnSiguiente:disabled {
       background-color: #333;
       color: #aaa;
       border-color: #555;
@@ -160,8 +165,9 @@
     }
     #btnSiguiente:hover:enabled {
       background-color: #003366;
-    }
+    }*/
     #btnComprobar {
+      display: none
       position: absolute;
       bottom: 90px;
       left: 50%;
@@ -184,10 +190,10 @@
     #btnComprobar:hover:enabled {
       background-color: #003366;
     }
-    /* 🎵 Control de volumen */
+     /* 🎵 Control de volumen */
     .volumen-control {
       position: absolute;
-      bottom: 10px;
+      bottom: -100px;
       right: 10px;
       display: flex;
       align-items: center;
@@ -363,7 +369,7 @@
 
 <body>
   
-  <button id="btnReiniciar" title="Reiniciar juego">⌚</button>
+  <!-- <button id="btnReiniciar" title="Reiniciar juego">⌚</button> -->
   
   
   <!-- 🧩 Comodines -->
@@ -395,7 +401,7 @@
   <div id="op4" class="opcion" style="display: none;">4</div>
 
   <button id="btnComprobar" disabled style="display: none;">Comprobar respuesta</button>
-  <button id="btnSiguiente">Iniciar</button>
+  <button id="btnSiguiente" style="display: none">Iniciar</button>
 
   <!-- 🎵 Control de volumen -->
   <div class="volumen-control">
@@ -405,7 +411,7 @@
 
   <!-- 🎵 Audios -->
   <audio id="audioInicio" src="sonidos/inicio.mp3" preload="auto"></audio>
-  <audio id="audioReinicio" src="sonidos/tic_tac.mp3"></audio>
+  <audio id="audioReinicio" src="sonidos/tic_tac.mp3" preload="auto"></audio>
   <audio id="audioCorrecto" src="sonidos/correcto.mp3"></audio>
   <audio id="audioIncorrecto" src="sonidos/incorrecto.mp3"></audio>
   <audio id="audioBgm"></audio>
@@ -418,9 +424,115 @@
 
   <script>
     
-    window.onload = () => {
-    window.open('panel.html', 'PanelControl', 'width=400,height=600');
+    let panelControl = null;
+
+window.onload = () => {
+  panelControl = window.open('panel-control.html', 'PanelControl', 'width=400,height=1080');
+};
+
+// Escuchar mensajes del panel
+window.addEventListener('message', (event) => {
+  if (event.origin !== window.location.origin) return; // seguridad
+
+  const data = event.data;
+  if (!data || typeof data !== 'object' || !data.action) return;
+
+  switch (data.action) {
+    case 'siguientePregunta':
+      btnSiguiente.click();
+      break;
+    case 'usarComodin5050':
+      usarComodin5050();
+      break;
+    case 'usarComodinLlamada':
+      usarComodinLlamada();
+      break;
+    case 'usarComodinChat':
+      usarComodinChat();
+      break;
+    case 'usarComodinCambio':
+      document.getElementById('comodinCambio').click();
+      break;
+    case 'mostrarSiguienteOpcion':
+      mostrarSiguienteOpcion();
+      break;
+    case 'reiniciarJuego':
+      location.reload();
+      break;
+    case 'comprobarRespuesta':
+      comprobarRespuesta();
+      break;
+  }
+});
+
+  window.addEventListener('message', (event) => {
+  const { tipo } = event.data;
+
+  switch (tipo) {
+    case 'reiniciarComodin5050':
+      reiniciarComodin5050();
+      break;
+    case 'reiniciarComodinLlamada':
+      reiniciarComodinLlamada();
+      break;
+    case 'reiniciarComodinChat':
+      reiniciarComodinChat();
+      break;
+    case 'reiniciarComodinCambio':
+      reiniciarComodinCambio();
+      break;
+  }
+});
+  
+    
+  window.addEventListener('message', (event) => {
+  if (event.origin !== window.location.origin) return;
+
+  const { action, data } = event.data;
+
+  if (action === 'ajustarVolumen' && typeof data === 'number') {
+    volumenActual = data;
+    playlist.forEach(audio => {
+      audio.volume = volumenActual;
+    });
+  }
+});
+
+
+    
+    
+    // musica de fondo
+const playlist = [
+  new Audio('sonidos/bgm_quiz_loop1.mp3'),
+  new Audio('sonidos/bgm_quiz_loop2.mp3'),
+  new Audio('sonidos/bgm_quiz_loop3.mp3'),
+];
+
+let volumenActual = 0;
+let indiceActual = 0;
+
+// Aplicar volumen inicial a todos
+playlist.forEach(audio => {
+  audio.volume = volumenActual;
+});
+
+// Función para reproducir el siguiente audio
+function reproducirSiguiente() {
+  if (indiceActual >= playlist.length) return;
+
+  const audio = playlist[indiceActual];
+  audio.play();
+
+  audio.onended = () => {
+    indiceActual++;
+    reproducirSiguiente(); // reproduce el próximo al terminar
   };
+}
+
+// Iniciar la reproducción
+reproducirSiguiente();
+
+    
     
     
     const preguntasReserva = [
@@ -745,7 +857,7 @@ btn.style.backgroundColor = "#ff0202";
   ocultarImagenResultado();
 
   preguntaEl.style.display = '';
-  btnComprobar.style.display = '';
+  btnComprobar.style.display = 'none';
 
   seleccionUsuario = null;
   respuestaComprobada = false;
@@ -764,13 +876,13 @@ btn.style.backgroundColor = "#ff0202";
 
   preguntaActual = preguntas[preguntaIndex];
 
-  // Mostrar botones de reinicio solo en la pregunta 11
+/*  // Mostrar botones de reinicio solo en la pregunta 11
   const reinicioComodines = document.getElementById('resetComodines');
   if (preguntaIndex === 10) {
     reinicioComodines.style.display = 'flex';
   } else {
     reinicioComodines.style.display = 'none';
-  }
+  }*/
 
   preguntaEl.textContent = preguntaActual.texto;
 
@@ -858,6 +970,7 @@ btn.style.backgroundColor = "#ff0202";
   if (seleccionUsuario === null || respuestaComprobada) return;
   respuestaComprobada = true;
   btnComprobar.disabled = true;
+  btnComprobar.style.display = 'none'
   btnSiguiente.disabled = false;
   opcionesEls.forEach(op => op.style.pointerEvents = "none");
 
@@ -995,45 +1108,37 @@ function colorAleatorio() {
 
     
     
-    // Reiniciar comodín 50:50
-document.getElementById('reset5050').addEventListener('click', () => {
+    function reiniciarComodin5050() {
   comodin5050Usado = false;
   const btn = document.getElementById('comodin5050');
   btn.disabled = false;
   btn.style.backgroundColor = '#444';
-
-  // Mostrar de nuevo opciones ocultas por 50:50
   opcionesEls.forEach(op => {
     op.style.visibility = 'visible';
     op.style.pointerEvents = 'auto';
   });
-});
+}
 
-// Reiniciar comodín Llamada
-document.getElementById('resetLlamada').addEventListener('click', () => {
+function reiniciarComodinLlamada() {
   comodinLlamadaUsado = false;
   const btn = document.getElementById('comodinLlamada');
   btn.disabled = false;
   btn.style.backgroundColor = '#444';
-});
+}
 
-// Reiniciar comodín Chat
-document.getElementById('resetChat').addEventListener('click', () => {
+function reiniciarComodinChat() {
   comodinChatUsado = false;
   const btn = document.getElementById('comodinChat');
   btn.disabled = false;
   btn.style.backgroundColor = '#444';
-});
+}
 
-
-// Reiniciar comodin Cambio Pregunta
-document.getElementById('resetCambio').addEventListener('click', () => {
+function reiniciarComodinCambio() {
   comodinCambioUsado = false;
-
   const btn = document.getElementById('comodinCambio');
   btn.disabled = false;
-  btn.style.backgroundColor = '#444'; // o el color original como "#fff" si lo deseas
-});
+  btn.style.backgroundColor = '#444';
+}
 
     
     
