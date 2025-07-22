@@ -87,7 +87,6 @@
     <input type="range" id="volumenJuego" min="0" max="1" step="0.01" value="0">
   </div>
 
-  <audio id="audioSonido" src="sonidos/tic_tac.mp3" preload="auto"></audio>
   
   <script>
     // Función para enviar el mensaje a la ventana principal
@@ -130,22 +129,18 @@
         enviarMensaje('reiniciarJuego');
       }
     };
-    const audio = document.getElementById('audioSonido');
-  const btnSonido = document.getElementById('btnSonido');
+    let sonidoActivo = false;
 
-    audio.volume = 0.2
-    audio.loop = true
-    btnSonido.onclick = () => {
-    if (!audio.paused && !audio.ended) {
-      // Si ya está sonando, lo pausamos y lo reiniciamos
-      audio.pause();
-      audio.currentTime = 0;
-      
-    } else {
-      // Si está pausado, lo reproducimos desde el principio
-      audio.play().catch(e => console.log('Error al reproducir audio:', e));
-    }
-  };
+document.getElementById('btnSonido').onclick = () => {
+  sonidoActivo = !sonidoActivo;
+  
+  if (sonidoActivo) {
+    enviarMensaje('playAudio');
+  } else {
+    enviarMensaje('pauseAudio');
+  }
+};
+
   document.getElementById('volumenJuego').addEventListener('input', (e) => {
   const nuevoVolumen = parseFloat(e.target.value);
   enviarMensaje('ajustarVolumen', nuevoVolumen);

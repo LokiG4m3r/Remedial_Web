@@ -343,6 +343,27 @@
   }
 }
 
+#btnAbrirPanel {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #333;
+  color: gold;
+  border: none;
+  padding: 10px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+#btnAbrirPanel:hover {
+  background: #555;
+}
+
+    
+    
+    
 /* ✨ Brillo central */
 #finalBrillo {
   position: fixed;
@@ -402,6 +423,8 @@
 
   <button id="btnComprobar" disabled style="display: none;">Comprobar respuesta</button>
   <button id="btnSiguiente" style="display: none">Iniciar</button>
+  <button id="btnAbrirPanel" style="display: none;">🎛️</button>
+
 
   <!-- 🎵 Control de volumen -->
   <div class="volumen-control">
@@ -411,7 +434,7 @@
 
   <!-- 🎵 Audios -->
   <audio id="audioInicio" src="sonidos/inicio.mp3" preload="auto"></audio>
-  <audio id="audioReinicio" src="sonidos/tic_tac.mp3" preload="auto"></audio>
+  <audio id="audioTICTAC" src="sonidos/tic_tac.mp3" preload="auto"></audio>
   <audio id="audioCorrecto" src="sonidos/correcto.mp3"></audio>
   <audio id="audioIncorrecto" src="sonidos/incorrecto.mp3"></audio>
   <audio id="audioBgm"></audio>
@@ -425,6 +448,26 @@
   <script>
     
     let panelControl = null;
+
+// Abrir el panel si se hace clic en el botón
+document.getElementById('btnAbrirPanel').addEventListener('click', () => {
+  if (!panelControl || panelControl.closed) {
+    panelControl = window.open('panel-control.html', 'PanelControl', 'width=400,height=1080');
+  } else {
+    panelControl.focus();
+  }
+});
+
+
+// Mostrar u ocultar el botón según el estado del panel
+setInterval(() => {
+  const btn = document.getElementById('btnAbrirPanel');
+  if (!panelControl || panelControl.closed) {
+    btn.style.display = 'block';
+  } else {
+    btn.style.display = 'none';
+  }
+}, 1000); // se revisa cada 1 segundo
 
 window.onload = () => {
   panelControl = window.open('panel-control.html', 'PanelControl', 'width=400,height=1080');
@@ -487,7 +530,8 @@ window.addEventListener('message', (event) => {
     
   window.addEventListener('message', (event) => {
   if (event.origin !== window.location.origin) return;
-
+    audioTICTAC.volume = 0.2
+    audioTICTAC.loop = true
   const { action, data } = event.data;
 
   if (action === 'ajustarVolumen' && typeof data === 'number') {
@@ -496,6 +540,18 @@ window.addEventListener('message', (event) => {
       audio.volume = volumenActual;
     });
   }
+});
+    
+    
+    
+    window.addEventListener('message', (event) => {
+  const { action, data } = event.data || {};
+
+  if (action === 'playAudio') {
+    document.getElementById('audioTICTAC').play();
+  } else if (action === 'pauseAudio') {
+    document.getElementById('audioTICTAC').pause();
+  } 
 });
 
 
