@@ -60,9 +60,17 @@
     <h3>Navegación</h3>
     <button id="btnSiguiente">Siguiente Pregunta</button>
     <button id="btnMostrarOpcion">Mostrar Siguiente Opción</button>
-    <button id="btnComprobarRespuesta">Comprobar Respuesta</button>
-  </div>
+     </div>
 
+  <div class="seccion" id="seccion-opciones">
+    <h3>Opciones</h3>
+    <button onclick="elegirOpcion('A')">A</button>
+    <button onclick="elegirOpcion('B')">B</button>
+    <button onclick="elegirOpcion('C')">C</button>
+    <button onclick="elegirOpcion('D')">D</button>
+     <button id="btnComprobarRespuesta">Comprobar Respuesta</button>
+  </div>
+  
   <div class="seccion" id="seccion-comodines">
     <h3>Comodines</h3>
     <button id="btnComodin5050">Usar Comodín 50:50</button>
@@ -80,6 +88,7 @@
     <button id="btnReiniciar">Reiniciar Juego</button>
   </div>
   
+    
   <div class="seccion" id="seccion-otros">
     <h3>Otros</h3>
     <button id="btnSonido">Reproducir Sonido</button>
@@ -90,13 +99,13 @@
   
   <script>
     // Función para enviar el mensaje a la ventana principal
-    function enviarMensaje(action) {
-      if (window.opener && !window.opener.closed) {
-        window.opener.postMessage({ action }, window.location.origin);
-      } else {
-        alert('La ventana principal no está disponible.');
-      }
-    }
+    function enviarMensaje(action, data = null) {
+  if (window.opener && !window.opener.closed) {
+    window.opener.postMessage({ action, data }, window.location.origin);
+  } else {
+    alert('La ventana principal no está disponible.');
+  }
+}
 
     function enviarReinicio(tipo) {
       // Asumiendo que el juego está embebido en un iframe con id="game"
@@ -116,7 +125,12 @@
   }
 }
     
+    function elegirOpcion(letra) {
+  enviarMensaje('seleccionarOpcion', letra);
+}
 
+    
+    
     document.getElementById('btnSiguiente').onclick = () => enviarMensaje('siguientePregunta');
     document.getElementById('btnComprobarRespuesta').onclick = () => enviarMensaje('comprobarRespuesta');
     document.getElementById('btnComodin5050').onclick = () => enviarMensaje('usarComodin5050');

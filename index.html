@@ -416,10 +416,10 @@
   <div id="contenedorIndicador"></div>
 
   <div class="pregunta" id="pregunta" style="display: none;">Cargando pregunta...</div>
-  <div id="op1" class="opcion" style="display: none;">1</div>
-  <div id="op2" class="opcion" style="display: none;">2</div>
-  <div id="op3" class="opcion" style="display: none;">3</div>
-  <div id="op4" class="opcion" style="display: none;">4</div>
+  <div id="op1" class="opcion" data-opcion="A" style="display: none;">1</div>
+  <div id="op2" class="opcion" data-opcion="B" style="display: none;">2</div>
+  <div id="op3" class="opcion" data-opcion="C" style="display: none;">3</div>
+  <div id="op4" class="opcion" data-opcion="D" style="display: none;">4</div>
 
   <button id="btnComprobar" disabled style="display: none;">Comprobar respuesta</button>
   <button id="btnSiguiente" style="display: none">Iniciar</button>
@@ -438,6 +438,8 @@
   <audio id="audioCorrecto" src="sonidos/correcto.mp3"></audio>
   <audio id="audioIncorrecto" src="sonidos/incorrecto.mp3"></audio>
   <audio id="audioBgm"></audio>
+  <audio id="audioPlop" src="sonidos/plop.mp3" preload="auto"></audio>
+  
 
   <!-- Texto resultado flotante -->
   <div id="resultadoTexto"></div>
@@ -554,7 +556,51 @@ window.addEventListener('message', (event) => {
   } 
 });
 
+window.addEventListener("message", (event) => {
+  const { action } = event.data;
 
+  if (action === "mostrarSiguienteOpcion") {
+    // Aquí reproduces el sonido
+    const plop = document.getElementById("audioPlop");
+    plop.volume = 0.4
+    if (plop) {
+      plop.currentTime = 0;
+      plop.play().catch(e => console.error("Error al reproducir sonido:", e));
+    }
+  }
+  
+  if (action === 'seleccionarOpcion') {
+  const letra = event.data.data;
+  seleccionarOpcionDesdePanel(letra);
+}
+
+});
+
+    
+ window.addEventListener("message", (event) => {
+  const { action, data } = event.data || {};
+
+  console.log("Mensaje recibido:", action, data); // DEBUG
+
+  switch (action) {
+    case "seleccionarOpcion":
+      const mapa = { A: 0, B: 1, C: 2, D: 3 };
+      if (mapa[data] !== undefined) {
+        seleccionUsuario = mapa[data];
+        opcionesEls.forEach(el => el.classList.remove("seleccionada"));
+        opcionesEls[seleccionUsuario].classList.add("seleccionada");
+      }
+      break;
+
+    case "comprobarRespuesta":
+      console.log("Se ejecutará comprobarRespuesta()");
+      comprobarRespuesta();
+      break;
+
+    // Puedes agregar más casos aquí si usas otros botones
+  }
+}); 
+    
     
     
     // musica de fondo
@@ -778,6 +824,7 @@ reproducirSiguiente();
     let preguntaActual = null;
     let preguntaIndex = -1; // Empieza en -1 para que la primera sea 0
     let seleccionUsuario = null;
+    let opcionSeleccionada = null;
     let respuestaComprobada = false;
     let resultados = Array(TOTAL_PREGUNTAS).fill(null);
     let comodin5050Usado = false;
@@ -1002,7 +1049,6 @@ btn.style.backgroundColor = "#ff0202";
   });
 }
 
-
     function mostrarResultadoVisual(tipo) {
       resultadoTexto.textContent = tipo === "correcto" ? "¡Correcto!" : "¡Incorrecto!";
       resultadoTexto.className = `mostrar ${tipo}`;
@@ -1022,8 +1068,24 @@ btn.style.backgroundColor = "#ff0202";
       imagenResultado.src = '';
     }
 
+    function seleccionarOpcionDesdePanel(letra) {
+  opcionSeleccionada = letra; // ✅ Esto permite que "comprobarRespuesta" funcione
+
+  const botones = document.querySelectorAll(".opcion");
+  botones.forEach(btn => {
+    btn.classList.remove("seleccionada");
+  });
+
+  const botonSeleccionado = document.querySelector(`.opcion[data-opcion="${letra}"]`);
+  if (botonSeleccionado) {
+    botonSeleccionado.classList.add("seleccionada");
+  }
+}
+
+    
     function comprobarRespuesta() {
-  if (seleccionUsuario === null || respuestaComprobada) return;
+  
+      if (seleccionUsuario === null || respuestaComprobada) return;
   respuestaComprobada = true;
   btnComprobar.disabled = true;
   btnComprobar.style.display = 'none'
