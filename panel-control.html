@@ -81,10 +81,10 @@
 
   <div class="seccion" id="seccion-reinicio">
     <h3>Reiniciar</h3>
-    <button onclick="enviarReinicio('reiniciarComodin5050')">Reiniciar 50:50</button>
-    <button onclick="enviarReinicio('reiniciarComodinLlamada')">Reiniciar Llamada</button>
-    <button onclick="enviarReinicio('reiniciarComodinChat')">Reiniciar Chat</button>
-    <button onclick="enviarReinicio('reiniciarComodinCambio')">Reiniciar Cambio Pregunta</button>
+    <button id="btnreiniciarComodin5050">Reiniciar 50:50</button>
+    <button id="btnreiniciarComodinLlamada">Reiniciar Llamada</button>
+    <button id="btnreiniciarComodinChat">Reiniciar Chat</button>
+    <button id="btnreiniciarComodinCambio">Reiniciar Cambio Pregunta</button>
     <button id="btnReiniciar">Reiniciar Juego</button>
   </div>
   
@@ -117,26 +117,75 @@
       }
     }
     
-    function enviarMensaje(action, data = null) {
-  if (window.opener && !window.opener.closed) {
-    window.opener.postMessage({ action, data }, window.location.origin);
-  } else {
-    alert('La ventana principal no está disponible.');
-  }
-}
     
     function elegirOpcion(letra) {
   enviarMensaje('seleccionarOpcion', letra);
 }
 
-    
+    //Reinicios
+    document.getElementById('btnreiniciarComodin5050').onclick = () => {
+      enviarReinicio('reiniciarComodin5050');
+      sonido5050 = false;
+    };
+    document.getElementById('btnreiniciarComodinLlamada').onclick = () => {
+      enviarReinicio('reiniciarComodinLlamada');
+      sonidoLlamada = false;
+    };
+    document.getElementById('btnreiniciarComodinChat').onclick = () => {
+      enviarReinicio('reiniciarComodinChat');
+      
+      if(sonidoChat) {
+        enviarMensaje('pauseAudioChat')
+        enviarMensaje('stopAudioChat')
+        sonidoChat = false;
+      }
+    };
+    document.getElementById('btnreiniciarComodinCambio').onclick = () => {
+      enviarReinicio('reiniciarComodinCambio');
+      sonidoBuzu = false;
+    };
     
     document.getElementById('btnSiguiente').onclick = () => enviarMensaje('siguientePregunta');
     document.getElementById('btnComprobarRespuesta').onclick = () => enviarMensaje('comprobarRespuesta');
-    document.getElementById('btnComodin5050').onclick = () => enviarMensaje('usarComodin5050');
-    document.getElementById('btnComodinLlamada').onclick = () => enviarMensaje('usarComodinLlamada');
-    document.getElementById('btnComodinChat').onclick = () => enviarMensaje('usarComodinChat');
-    document.getElementById('btnComodinCambio').onclick = () => enviarMensaje('usarComodinCambio');
+    document.getElementById('btnComodin5050').onclick = () => {
+      enviarMensaje('usarComodin5050');
+      sonido5050 = !sonido5050;
+  
+  if (sonido5050) {
+    enviarMensaje('playAudio5050');
+  }      
+    }
+    document.getElementById('btnComodinLlamada').onclick = () => {
+      enviarMensaje('usarComodinLlamada');
+       sonidoLlamada = !sonidoLlamada;
+  
+  if (sonidoLlamada) {
+    enviarMensaje('playAudioLlamada');
+  } else {
+    enviarMensaje('pauseAudioLlamada');
+  }
+      
+    }
+    document.getElementById('btnComodinChat').onclick = () => {
+      enviarMensaje('usarComodinChat');
+      sonidoChat = !sonidoChat;
+  
+  if (sonidoChat) {
+    enviarMensaje('playAudioChat');
+  } else {
+    enviarMensaje('pauseAudioChat');
+  }
+    }
+    document.getElementById('btnComodinCambio').onclick = () => {
+      enviarMensaje('usarComodinCambio');
+      sonidoBuzu = !sonidoBuzu;
+  
+  if (sonidoBuzu) {
+    enviarMensaje('playAudioBuzu');
+  } else {
+    enviarMensaje('pauseAudioBuzu');
+  }
+    }
     document.getElementById('btnMostrarOpcion').onclick = () => enviarMensaje('mostrarSiguienteOpcion');
     document.getElementById('btnReiniciar').onclick = () => {
       if (confirm('¿Seguro que quieres reiniciar el juego?')) {
@@ -144,7 +193,12 @@
       }
     };
     let sonidoActivo = false;
+    let sonido5050 = false;
+    let sonidoChat = false;
+    let sonidoLlamada = false;
+    let sonidoBuzu = false;
 
+    //TIC TAC
 document.getElementById('btnSonido').onclick = () => {
   sonidoActivo = !sonidoActivo;
   

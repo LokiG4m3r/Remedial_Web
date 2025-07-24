@@ -37,7 +37,7 @@
     .bolaIndicador {
       width: 38px;
       height: 38px;
-      transform: translateY(-150%);
+      transform: translateY(-200%);
       border-radius: 50%;
       border: 2px solid gold;
       color: white;
@@ -343,6 +343,12 @@
   }
 }
 
+.letra-opcion {
+  color: orange;
+  font-weight: bold;
+  margin-right: 8px;
+}
+    
 #btnAbrirPanel {
   position: fixed;
   bottom: 20px;
@@ -398,7 +404,7 @@
   <button id="comodin5050" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">🌓</button>
   <button id="comodinLlamada" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">☎️</button>
   <button id="comodinChat" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">📊</button>
-  <button id="comodinCambio" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">👨🏻‍🏫</button>
+  <button id="comodinCambio" style="padding: 10px 20px; background-color: #444; border: 2px solid gold; color: white; border-radius: 8px; cursor: pointer;">🔄</button>
 
 </div>
 
@@ -439,6 +445,10 @@
   <audio id="audioIncorrecto" src="sonidos/incorrecto.mp3"></audio>
   <audio id="audioBgm"></audio>
   <audio id="audioPlop" src="sonidos/plop.mp3" preload="auto"></audio>
+  <audio id="audio5050" src="sonidos/5050.mp3" preload="auto"></audio>
+  <audio id="audioBuzu" src="sonidos/buzuuuuuuuu.mp3" preload="auto"></audio>
+  <audio id="audioChat" src="sonidos/chat.mp3" preload="auto"></audio>
+  <audio id="audioLlamada" src="sonidos/llamada.mp3" preload="auto"></audio>
   
 
   <!-- Texto resultado flotante -->
@@ -545,7 +555,7 @@ window.addEventListener('message', (event) => {
 });
     
     
-    
+    //TICTAC
     window.addEventListener('message', (event) => {
   const { action, data } = event.data || {};
 
@@ -554,6 +564,45 @@ window.addEventListener('message', (event) => {
   } else if (action === 'pauseAudio') {
     document.getElementById('audioTICTAC').pause();
   } 
+});
+    //Buzu
+    window.addEventListener('message', (event) => {
+  const { action, data } = event.data || {};
+
+  if (action === 'playAudioBuzu') {
+    document.getElementById('audioBuzu').play();
+  }
+});
+    //Chat
+    window.addEventListener('message', (event) => {
+  const { action, data } = event.data || {};
+
+  if (action === 'playAudioChat') {
+    audioChat.volume = 0.4
+    document.getElementById('audioChat').play();
+  } else if (action === 'pauseAudioChat') {
+    document.getElementById('audioChat').pause();
+  } else if (action === 'stopAudioChat') {
+    document.getElementById('audioChat').currentTime = 0;
+  }
+});
+    //Llamada
+    window.addEventListener('message', (event) => {
+  const { action, data } = event.data || {};
+
+  if (action === 'playAudioLlamada') {
+    audioLlamada.volume = 0.2;
+    document.getElementById('audioLlamada').play();
+  }
+});
+    //5050
+    window.addEventListener('message', (event) => {
+  const { action, data } = event.data || {};
+
+  if (action === 'playAudio5050') {
+    audio5050.volume = 0.5
+    document.getElementById('audio5050').play();
+  }
 });
 
 window.addEventListener("message", (event) => {
@@ -639,162 +688,143 @@ reproducirSiguiente();
     
     const preguntasReserva = [
   {
-    texto: "¿Cuál es el océano más profundo?",
-    opciones: ["Atlántico", "Índico", "Ártico", "Pacífico"],
-    respuestaCorrecta: 3,
-    imagen: "fotos/tierra.png"
+    texto: "¿Quién fue el primer presidente de los Estados Unidos?",
+    opciones: ["Thomas Jefferson", "George Washington", "Abraham Lincoln", "Donald J. Trump"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/george.png"
   },
   {
-    texto: "¿Qué planeta tiene más lunas?",
-    opciones: ["Marte", "Júpiter", "Saturno", "Neptuno"],
-    respuestaCorrecta: 2
+    texto: "¿Quién fue el último zar de Rusia antes de la Revolución de Octubre?",
+    opciones: ["Nicolás I", "Pedro el Grande", "Alejandro III", "Nicolás II"],
+    respuestaCorrecta: 3,
+    imagen: "fotos/nicolas.png"
   }
 ];
 
     const TOTAL_PREGUNTAS = 20;
     const preguntas = [
-      ///PREGUNTAS
-      //1
-      { 
-        texto: "¿Cuál es el planeta conocido como 'el planeta azul'?", 
-        opciones: ["Marte", "Tierra", "Neptuno", "Venus"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/tierra.png"
-      },
-      //2
-      { 
-        texto: "¿Quién escribió Don Quijote de la Mancha?", 
-        opciones: ["Miguel de Cervantes", "Gabriel García Márquez", "William Shakespeare", "Lope de Vega"], 
-        respuestaCorrecta: 0,
-        imagen: "fotos/cervantes.png"
-      },
-      //3
-      { 
-        texto: "¿En qué país se encuentra la Torre Eiffel?", 
-        opciones: ["Italia", "Francia", "España", "Alemania"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/francia.jpg"
-      },
-      //4 
-      { 
-        texto: "¿Qué instrumento tiene cuerdas y se toca con un arco?", 
-        opciones: ["Flauta", "Piano", "Violín", "Batería"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/violin.png"
-      },
-      //5
-      { 
-        texto: "¿Cuál es el océano que bordea la costa este de América?", 
-        opciones: ["Índico", "Pacífico", "Atlántico", "Ártico"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/atlantico.png"
-      },
-      //6
-      { 
-        texto: "¿Qué gas respiramos para vivir?", 
-        opciones: ["Dióxido de Carbono", "Nitrógeno", "Oxígeno", "Hidrógeno"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/oxigeno.png"
-      },
-      //7 
-      { 
-        texto: "¿En qué continente se encuentra Brasil?", 
-        opciones: ["Europa", "África", "Asia", "América del Sur"], 
-        respuestaCorrecta: 3,
-        imagen: "fotos/americasur.png"
-      },
-      //8
-      { 
-        texto: "¿Qué órgano produce la bilis?", 
-        opciones: ["Estómago", "Hígado", "Riñón", "Vesícula"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/higado.png"
-      },
-      //9
-       { 
-        texto: "¿En qué año terminó la Segunda Guerra Mundial?", 
-        opciones: ["1939", "1945", "1948", "1950"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/1945.png"
-       },
-      //10
-      { 
-        texto: "¿Qué tipo de energía produce el sol?", 
-        opciones: ["Cinética", "Nuclear", "Eólica", "Térmica"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/sol.png"
-      },
-      //11
-      { 
-        texto: "¿En qué videojuego usas pokéballs para capturar criaturas?", 
-        opciones: ["Digimon", "Yu-Gi-Oh", "Pokémon", "Final Fantasy"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/pokemon.gif"
-      },
-      //12
-      { 
-        texto: "¿Qué empresa fabrica los iPhones?", 
-        opciones: ["Microsoft", "Google", "Apple", "Samsung"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/apple.png"
-      },
-      //14
-      { 
-        texto: "¿Qué enfermedad afecta principalmente al sistema inmunológico?", 
-        opciones: ["Hepatitis", "Asma", "VIH/SIDA", "Parkinson"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/vihsida.png"
-      },
-      //15
-      { 
-        texto: "¿Quién canta “Shape of You”?", 
-        opciones: ["Bruno Mars", "Ed Sheeran", "Shawn Mendes", "Justin Bieber"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/sheeran.png"
-      },
-      //16
-      { 
-        texto: "¿Qué personaje es el protagonista en The Witcher?", 
-        opciones: ["Geralt de Rivia", "Ezio Auditore", "Kratos", "Link"], 
-        respuestaCorrecta: 0,
-        imagen: "fotos/geralt.png"
-      },
-      //17
-      { 
-        texto: "¿Quién escribió Así habló Zaratustra?", 
-        opciones: ["Sócrates", "Friedrich Nietzsche", "Descartes", "Hegel"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/friedrich.png"
-      },
-      //18
-      { 
-        texto: "¿Quién dirigió 2001: Odisea del Espacio?", 
-        opciones: ["Steven Spielberg", "Ridley Scott", "Stanley Kubrick", "James Cameron"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/stanly.png"
-      },
-      //19
-      { 
-        texto: "¿Cuál es la unidad de medida del trabajo en el Sistema Internacional?", 
-        opciones: ["Newton", "Pascal", "Joule", "Watt"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/joule.png"
-      },
-      //19 
-      { 
-        texto: "¿Quién escribió El extranjero y La peste?", 
-        opciones: ["Franz Kafka", "Albert Camus", "Jean-Paul Sartre", "Italo Calvino"], 
-        respuestaCorrecta: 1,
-        imagen: "fotos/alber.png"
-      },
-      //20
-      { 
-        texto: "¿Qué faraón egipcio fue descubierto en el Valle de los Reyes en 1922?", 
-        opciones: ["Ramsés II", "Akhenatón", "Tutankamón", "Cleopatra VII"], 
-        respuestaCorrecta: 2,
-        imagen: "fotos/Tutankamon.png"
-      }
-    ];
+  {
+    texto: "¿Con qué fruta envenena la Reina Malvada a Blancanieves?",
+    opciones: ["Pera", "Manzana", "Uva", "Ciruela"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/manzana.gif"
+  },
+  {
+    texto: "¿Qué continente es conocido como “la cuna de la humanidad”?",
+    opciones: ["Europa", "Asia", "África", "Oceanía"],
+    respuestaCorrecta: 2,
+    imagen: "fotos/africa.png"
+  },
+  {
+    texto: "¿Cuántos integrantes tiene el grupo BTS?",
+    opciones: ["5", "6", "7", "8"],
+    respuestaCorrecta: 2,
+    imagen: "fotos/bts7.gif"
+  },
+  {
+    texto: "¿Cuál es la capital de Argentina?",
+    opciones: ["Santiago", "Montevideo", "Buenos Aires", "Lima"],
+    respuestaCorrecta: 2,
+    imagen: "fotos/buenos_aires.png"
+  },
+  {
+    texto: "¿Cuál es el principal villano al que se enfrenta Mario en Super Mario 64?",
+    opciones: ["Bowser", "Wario", "Donkey Kong", "King Boo"],
+    respuestaCorrecta: 0,
+    imagen: "fotos/bowser.gif"
+  },
+  {
+    texto: "¿Cuál de estos pertenece a los cinco sentidos?",
+    opciones: ["Olfato", "Memoria", "Respiración", "Coordinación"],
+    respuestaCorrecta: 0,
+    imagen: "fotos/olfato.gif"
+  },
+  {
+    texto: "¿Qué actor interpreta a Spider-Man en Spider-Man: No Way Home (2021)?",
+    opciones: ["Andrew Garfield", "Tom Holland", "Tobey Maguire", "Ernesto Losa"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/holland.gif"
+    
+  },
+  {
+    texto: "¿Qué planeta tiene un sistema de anillos visible desde la Tierra?",
+    opciones: ["Neptuno", "Urano", "Júpiter", "Saturno"],
+    respuestaCorrecta: 3,
+    imagen: "fotos/saturno.gif"
+  },
+  {
+    texto: "¿Qué órgano regula los niveles de glucosa en la sangre mediante la producción de insulina?",
+    opciones: ["Riñón", "Corazón", "Páncreas", "Bazo"],
+    respuestaCorrecta: 2,
+    imagen: "fotos/pancreas.png"
+  },
+  {
+    texto: "¿Qué álbum incluye el tema Fake Love de BTS?",
+    opciones: ["Map of the Soul: Persona", "Love Yourself: Tear", "Wings", "BE"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/lovebts.png"
+  },
+  {
+    texto: "¿Qué estructura conecta el cuerpo con el cerebro?",
+    opciones: ["Médula espinal", "Nervio óptico", "Cerebelo", "Columna Vertebral"],
+    respuestaCorrecta: 0,
+    imagen: "fotos/medula.png"
+  },
+  {
+    texto: "¿Qué saga de videojuegos tiene una organización llamada Los Iluminados?",
+    opciones: ["Silent Hill", "Assassin's Creed", "Resident Evil", "Metal Gear"],
+    respuestaCorrecta: 2,
+    imagen: "fotos/re4.png"
+  },
+  {
+    texto: "En The Legend of Zelda, ¿Cuál es el nombre del villano principal?",
+    opciones: ["Urbosa", "Ganondorf", "Impa", "Sheik"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/ganon.png"
+  },
+  {
+    texto: "¿Qué instrumento mide los terremotos?",
+    opciones: ["Termómetro", "Sismógrafo", "Barómetro", "Altímetro"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/sismo.png"
+  },
+  {
+    texto: "¿Qué hueso del cuerpo humano es el más pequeño?",
+    opciones: ["Martillo", "Estribo", "Yunque", "Escafoides"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/estribo.png"
+  },
+  {
+    texto: "¿Qué elemento químico tiene como símbolo el \"W\"?",
+    opciones: ["Cobre", "Wurtzita", "Adamantita", "Tungsteno"],
+    respuestaCorrecta: 3,
+    imagen: "fotos/w.png"
+  },
+  {
+    texto: "¿Cuál de estas partículas subatómicas no tiene carga eléctrica?",
+    opciones: ["Psión", "Electrón", "Neutrón", "Fotón"],
+    respuestaCorrecta: 0,
+    imagen: "fotos/psion.png"
+  },
+  {
+    texto: "¿Cuál de estos juegos fue creado por Hidetaka Miyazaki?",
+    opciones: ["The Witcher 3", "Elden Ring", "Cyberpunk 2077", "Silent Hill"],
+    respuestaCorrecta: 1,
+    imagen: "fotos/eldenring.png"
+  },
+  {
+    texto: "¿Qué juego indie de 2017 combina mecánicas de combate por turnos con narrativa emocional y rompimiento de la cuarta pared?",
+    opciones: ["Hollow Knight", "Celeste", "Undertale", "Hades"],
+    respuestaCorrecta: 2,
+    imagen: "fotos/undertale.gif"
+  },
+  {
+    texto: "¿Quién fue el último presidente de la Unión Soviética antes de su disolución en 1991?",
+    opciones: ["Vladímir Putin", "Borís Yeltsin", "Mijaíl Gorbachov", "Nikita Jrushchov"],
+    respuestaCorrecta: 2,
+    imagen: "fotos/mijail.png"
+  }
+];
     while (preguntas.length < TOTAL_PREGUNTAS) {
       preguntas.push({
         texto: `Pregunta extra ${preguntas.length + 1}`,
@@ -989,9 +1019,12 @@ btn.style.backgroundColor = "#ff0202";
 
   preguntaEl.textContent = preguntaActual.texto;
 
-  preguntaActual.opciones.forEach((opcion, i) => {
-    opcionesEls[i].textContent = opcion;
-  });
+  const letras = ['A', 'B', 'C', 'D'];
+
+preguntaActual.opciones.forEach((opcion, i) => {
+  opcionesEls[i].innerHTML = `<span class="letra-opcion">${letras[i]}:</span> ${opcion}`;
+});
+
 
   // Reiniciar índice de opción visible y mostrar la primera
   if (resultados[preguntaIndex] !== null) {
