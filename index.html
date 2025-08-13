@@ -249,7 +249,27 @@
       z-index: 200;
       background-color: rgba(255, 255, 255, 0.8);
     }
+   
     
+    <!-- Temporizador de Llamada -->
+<div id="call-timer" style="
+  display:none;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
+  color: gold;
+  font-size: 2em;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 2px solid gold;
+  z-index: 9999;
+">
+  40
+</div>
+
+
     
     #btnReiniciar {
   position: absolute;
@@ -464,7 +484,7 @@
 // Abrir el panel si se hace clic en el botón
 document.getElementById('btnAbrirPanel').addEventListener('click', () => {
   if (!panelControl || panelControl.closed) {
-    panelControl = window.open('panel-control.html', 'PanelControl', 'width=400,height=1080');
+    panelControl = window.open('panel-control.html','PanelControl', 'width=400,height=1080');
   } else {
     panelControl.focus();
   }
@@ -650,6 +670,14 @@ window.addEventListener("message", (event) => {
   }
 }); 
     
+//Temporizador
+window.addEventListener('message', (event) => {
+  if (!event.data || !event.data.action) return;
+
+  if (event.data.action === 'mostrarTemporizador') {
+    mostrarTemporizador();
+  }
+});
     
     
     // musica de fondo
@@ -701,7 +729,7 @@ reproducirSiguiente();
   }
 ];
 
-    const TOTAL_PREGUNTAS = 20;
+    const TOTAL_PREGUNTAS = 15;
     const preguntas = [
   {
     texto: "¿Con qué fruta envenena la Reina Malvada a Blancanieves?",
@@ -862,7 +890,7 @@ reproducirSiguiente();
     let comodinChatUsado = false;
     let comodinCambioUsado = false;
     let opcionVisibleIndex = 0;
-
+   
     const bgmTracks = ['sonidos/bgm_quiz_loop1.mp3', 'sonidos/bgm_quiz_loop2.mp3', 'sonidos/bgm_quiz_loop3.mp3'];
     let bgmIndex = 0;
 
@@ -941,10 +969,6 @@ btn.style.backgroundColor = "#ff0202";
 
   const correcta = preguntaActual.opciones[preguntaActual.respuestaCorrecta];
 }
-
-
-    
-    
     
     function playBgmTrack(index) {
       if (index >= bgmTracks.length) index = 0;
@@ -1293,7 +1317,50 @@ function reiniciarComodinCambio() {
 
     
     
-    // No mostrar pregunta al inicio para esperar botón "Iniciar"
+function mostrarTemporizador() {
+  let div = document.getElementById('temporizadorJuego');
+
+  // Si el temporizador ya existe pero está oculto, lo reiniciamos
+  if (div) {
+    clearInterval(window.temporizadorInterval);
+    div.style.display = 'block';
+  } else {
+    // Crear el div por primera vez
+    div = document.createElement('div');
+    div.id = 'temporizadorJuego';
+    div.style.position = 'absolute';
+    div.style.top = '100px';
+    div.style.left = '50%';
+    div.style.transform = 'translateX(-50%)';
+    div.style.display = 'block';
+    div.style.background = 'rgba(0,0,0,0.7)';
+    div.style.color = 'gold';
+    div.style.padding = '20px 25px';
+    div.style.borderRadius = '8px';
+    div.style.fontSize = '54px';
+    div.style.zIndex = 9999;
+    document.body.appendChild(div);
+  }
+
+  // Reinicia los segundos
+  let segundos = 40;
+  div.textContent = segundos;
+
+  // Iniciar el intervalo
+  window.temporizadorInterval = setInterval(() => {
+    segundos--;
+    div.textContent = segundos;
+
+    if (segundos <= 0) {
+      clearInterval(window.temporizadorInterval);
+      div.style.display = 'none'; // se oculta al llegar a 0
+    }
+  }, 1000);
+}
+
+    
+    
+  // No mostrar pregunta al inicio para esperar botón "Iniciar"
   </script>
   
 <div class="fireworks-container" id="fireworksContainer"></div>

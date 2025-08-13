@@ -77,6 +77,7 @@
     <button id="btnComodinLlamada">Usar Comodín Llamada</button>
     <button id="btnComodinChat">Usar Comodín Chat</button>
     <button id="btnComodinCambio">Usar Comodín Cambio</button>
+    <button id="btnMostrarTemporizador">Mostrar Temporizador</button>
   </div>
 
   <div class="seccion" id="seccion-reinicio">
@@ -122,6 +123,7 @@
   enviarMensaje('seleccionarOpcion', letra);
 }
 
+  
     //Reinicios
     document.getElementById('btnreiniciarComodin5050').onclick = () => {
       enviarReinicio('reiniciarComodin5050');
@@ -158,6 +160,7 @@
     document.getElementById('btnComodinLlamada').onclick = () => {
       enviarMensaje('usarComodinLlamada');
        sonidoLlamada = !sonidoLlamada;
+      //enviarMensaje('mostrarTemporizador'); // envía la acción al index
   
   if (sonidoLlamada) {
     enviarMensaje('playAudioLlamada');
@@ -214,7 +217,12 @@ document.getElementById('btnSonido').onclick = () => {
   enviarMensaje('ajustarVolumen', nuevoVolumen);
 });
  
-  
+document.getElementById('btnMostrarTemporizador').onclick = () => {
+  enviarMensaje('mostrarTemporizador'); // envía la acción al index
+};
+
+    
+    
   </script>
 </body>
 </html>
